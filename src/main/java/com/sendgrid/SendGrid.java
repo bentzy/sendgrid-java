@@ -4,6 +4,7 @@ import com.sendgrid.smtpapi.SMTPAPI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -55,7 +56,15 @@ public class SendGrid {
         this.password = password;
         this.url = "https://api.sendgrid.com";
         this.endpoint = "/api/mail.send.json";
-        this.client = HttpClientBuilder.create().setUserAgent(USER_AGENT).build();
+
+        SocketConfig config = SocketConfig.custom()
+                .setSoTimeout(60000)
+                .setSoKeepAlive(false).build();
+
+        this.client = HttpClientBuilder.create()
+                .setUserAgent(USER_AGENT)
+                .setDefaultSocketConfig(config)
+                .build();
     }
 
     /**
@@ -176,7 +185,6 @@ public class SendGrid {
         } catch (IOException e) {
             throw new SendGridException(e);
         }
-
     }
 
     public static class Email {
